@@ -1,0 +1,41 @@
+.my-bookings-page {
+  width: 90%;
+  max-width: 1200px;
+  margin: 40px auto;
+  min-height: 100vh;
+}
+
+.my-bookings-page h1 {
+  text-align: center;
+  color: #0b3d91;
+  margin-bottom: 35px;
+}
+
+.booking-list {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.empty-bookings {
+  background: white;
+  padding: 60px 20px;
+  text-align: center;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, .08);
+}
+
+.empty-bookings h2 {
+  color: #0b3d91;
+  margin-bottom: 15px;
+}
+
+.empty-bookings p {
+  color: #666;
+}
+
+@media (max-width: 768px) {
+  .my-bookings-page {
+    width: 95%;
+  }
+}

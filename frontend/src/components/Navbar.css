@@ -1,0 +1,178 @@
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600&display=swap");
+
+:root {
+  --navy: #0A2540;
+  --navy-mid: #163A5F;
+  --saffron: #F5A623;
+  --saffron-dark: #D98D0F;
+  --white: #ffffff;
+  --ff-display: "Playfair Display", Georgia, serif;
+  --ff-body: "Inter", system-ui, sans-serif;
+}
+
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: var(--navy);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 5%;
+  height: 64px;
+  font-family: var(--ff-body);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* ── Logo ── */
+.navbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.logo-icon-wrap {
+  width: 32px;
+  height: 32px;
+  background: var(--saffron);
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--navy);
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.logo-wordmark {
+  font-family: var(--ff-display);
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--white);
+  letter-spacing: -0.02em;
+}
+
+.logo-wordmark span {
+  color: var(--saffron);
+}
+
+/* ── Nav Links ── */
+.navbar-links {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.navbar-links a {
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 13.5px;
+  font-weight: 500;
+  text-decoration: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: color 0.15s, background 0.15s;
+  white-space: nowrap;
+}
+
+.navbar-links a:hover {
+  color: var(--white);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.navbar-links a.active {
+  color: var(--saffron);
+  background: rgba(245, 166, 35, 0.1);
+}
+
+/* ── Right side ── */
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.nav-login-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--saffron);
+  color: var(--navy);
+  padding: 8px 18px;
+  border-radius: 7px;
+  font-size: 13.5px;
+  font-weight: 700;
+  text-decoration: none;
+  font-family: var(--ff-body);
+  transition: background 0.15s, transform 0.1s;
+}
+
+.nav-login-btn:hover {
+  background: var(--saffron-dark);
+  transform: translateY(-1px);
+}
+
+.menu-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 7px;
+  color: var(--white);
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.menu-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+/* ── Mobile drawer ── */
+@media (max-width: 820px) {
+  .menu-btn {
+    display: flex;
+  }
+
+  .navbar-links {
+    position: absolute;
+    top: 64px;
+    left: 0;
+    width: 100%;
+    background: var(--navy);
+    flex-direction: column;
+    align-items: stretch;
+    gap: 2px;
+    padding: 12px 16px 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    transform: translateY(-8px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.18s ease, transform 0.18s ease;
+  }
+
+  .navbar-links.active {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: all;
+  }
+
+  .navbar-links a {
+    font-size: 14.5px;
+    padding: 11px 14px;
+    border-radius: 8px;
+  }
+}
+.wel{
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+}

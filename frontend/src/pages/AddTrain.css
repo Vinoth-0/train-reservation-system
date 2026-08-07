@@ -1,0 +1,90 @@
+.add-train-page {
+  width: 90%;
+  max-width: 900px;
+  margin: 40px auto;
+  min-height: 100vh;
+}
+
+.add-train-card {
+  background: #fff;
+  padding: 35px;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.add-train-card h1 {
+  text-align: center;
+  color: #0b3d91;
+  margin-bottom: 30px;
+}
+
+.add-train-card form {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.add-train-card input {
+  width: 100%;
+  height: 50px;
+  padding: 0 15px;
+  border: 1px solid #dcdcdc;
+  border-radius: 8px;
+  font-size: 15px;
+  outline: none;
+  transition: 0.3s;
+}
+
+.add-train-card input:focus {
+  border-color: #0b3d91;
+  box-shadow: 0 0 8px rgba(11, 61, 145, 0.2);
+}
+
+.button-group {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 20px;
+  margin-top: 10px;
+}
+
+.button-group button {
+  flex: 1;
+  height: 50px;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.add-btn {
+  background: #ff9800;
+}
+
+.add-btn:hover {
+  background: #e68900;
+}
+
+.reset-btn {
+  background: #d32f2f;
+}
+
+.reset-btn:hover {
+  background: #b71c1c;
+}
+
+@media (max-width: 768px) {
+  .add-train-card {
+    padding: 25px;
+  }
+
+  .add-train-card form {
+    grid-template-columns: 1fr;
+  }
+
+  .button-group {
+    flex-direction: column;
+  }
+}

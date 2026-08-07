@@ -1,0 +1,156 @@
+.view-trains-page {
+  width: 90%;
+  max-width: 1100px;
+  margin: 40px auto;
+  min-height: 100vh;
+}
+
+/* ── Header ── */
+.view-trains-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.view-trains-header h1 {
+  color: #0b3d91;
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+.add-train-btn {
+  background: #ff9800;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 22px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+  white-space: nowrap;
+}
+
+.add-train-btn:hover {
+  background: #e68900;
+}
+
+/* ── Table card ── */
+.train-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.train-table thead {
+  background: #0b3d91;
+}
+
+.train-table thead th {
+  color: #fff;
+  text-align: left;
+  padding: 16px 18px;
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.train-table tbody tr {
+  border-bottom: 1px solid #eef1f6;
+  transition: background 0.2s;
+}
+
+.train-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.train-table tbody tr:hover {
+  background: #f4f7fb;
+}
+
+.train-table tbody td {
+  padding: 15px 18px;
+  font-size: 14.5px;
+  color: #333;
+  white-space: nowrap;
+}
+
+.train-table tbody td:nth-child(9) {
+  font-weight: 600;
+  color: #0b3d91;
+}
+
+/* ── Action buttons ── */
+.train-table .edit-btn,
+.train-table .delete-btn {
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: bold;
+  color: #fff;
+  cursor: pointer;
+  transition: 0.3s;
+  margin-right: 8px;
+}
+
+.train-table .edit-btn {
+  background: #ff9800;
+}
+
+.train-table .edit-btn:hover {
+  background: #e68900;
+}
+
+.train-table .delete-btn {
+  background: #d32f2f;
+}
+
+.train-table .delete-btn:hover {
+  background: #b71c1c;
+}
+
+/* ── Empty state ── */
+.train-table tbody td[colspan] {
+  padding: 40px 18px;
+  color: #888;
+  font-size: 15px;
+  white-space: normal;
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .train-table-wrapper {
+    overflow-x: auto;
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  }
+
+  .train-table {
+    box-shadow: none;
+    min-width: 820px;
+  }
+}
+
+@media (max-width: 600px) {
+  .view-trains-page {
+    width: 95%;
+  }
+
+  .view-trains-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .add-train-btn {
+    width: 100%;
+    text-align: center;
+  }
+}
