@@ -14,8 +14,6 @@ public class Booking {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
-
-	@NotBlank(message = "Enter your PNR Number")
 	@Column(unique = true, nullable = false)
 	private String pnrNumber;
 	@Column(nullable = false)
