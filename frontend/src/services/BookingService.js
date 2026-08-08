@@ -1,38 +1,31 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:8080/api/bookings";
+const API_URL = "http://localhost:8080/bookings";
 
 const BookingService = {
-  // Book Ticket
-  bookTicket(bookingData) {
-    return axios.post(`${API_URL}/book`, bookingData);
+  // Create booking
+  bookTicket(userId, bookingData) {
+    return axios.post(`${API_URL}/user/${userId}`, bookingData);
   },
 
-  // Get all bookings of logged-in user
-  getMyBookings() {
-    return axios.get(`${API_URL}/my-bookings`);
+  // Get booking by ID
+  getBookingById(id) {
+    return axios.get(`${API_URL}/${id}`);
   },
 
   // Get booking by PNR
-  getBookingByPnr(pnr) {
-    return axios.get(`${API_URL}/pnr/${pnr}`);
+  getBookingByPnr(pnrNumber) {
+    return axios.get(`${API_URL}/pnr/${pnrNumber}`);
+  },
+
+  // Get all bookings of logged-in user
+  getMyBookings(userId) {
+    return axios.get(`${API_URL}/user/${userId}`);
   },
 
   // Cancel booking
-  cancelBooking(id) {
-    return axios.delete(`${API_URL}/${id}`);
-  },
-
-  // Download ticket
-  downloadTicket(id) {
-    return axios.get(`${API_URL}/${id}/download`, {
-      responseType: "blob",
-    });
-  },
-
-  // Admin - Get all bookings
-  getAllBookings() {
-    return axios.get(API_URL);
+  cancelBooking(id, userId) {
+    return axios.put(`${API_URL}/${id}/cancel/user/${userId}`);
   },
 };
 

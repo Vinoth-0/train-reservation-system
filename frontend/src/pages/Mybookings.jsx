@@ -1,41 +1,72 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import BookingCard from "../components/BookingCard";
+import BookingService from "../services/BookingService";
 import "./MyBookings.css";
 
 function MyBookings() {
-  // Dummy data (Replace with API later)
-  const [bookings] = useState([
-    {
-      pnr: "PNR123456",
-      trainNumber: "12621",
-      trainName: "Tamil Nadu Express",
-      passengerName: "Vinoth Kumar",
-      source: "Chennai",
-      destination: "New Delhi",
-      travelDate: "15 Jul 2026",
-      status: "Confirmed",
-    },
-    {
-      pnr: "PNR654321",
-      trainNumber: "12627",
-      trainName: "Karnataka Express",
-      passengerName: "Vinoth Kumar",
-      source: "Chennai",
-      destination: "Bengaluru",
-      travelDate: "22 Jul 2026",
-      status: "Waiting",
-    },
-    {
-      pnr: "PNR987654",
-      trainNumber: "12676",
-      trainName: "Kovai Express",
-      passengerName: "Vinoth Kumar",
-      source: "Chennai",
-      destination: "Coimbatore",
-      travelDate: "05 Aug 2026",
-      status: "Cancelled",
-    },
-  ]);
+  const navigate = useNavigate();
+
+  const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loggedInUser = JSON.parse(localStorage.getItem("user"));
+
+    if (!loggedInUser) {
+      toast.error("Please login to view your bookings.");
+      navigate("/login");
+      return;
+    }
+
+    fetchBookings(loggedInUser.id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const fetchBookings = async (userId) => {
+    setLoading(true);
+    try {
+      const response = await BookingService.getMyBookings(userId);
+      setBookings(response.data);
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || "Unable to load your bookings."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCancel = async (bookingId) => {
+    const loggedInUser = JSON.parse(localStorage.getItem("user"));
+
+    const confirmCancel = window.confirm(
+      "Are you sure you want to cancel this booking?"
+    );
+    if (!confirmCancel) return;
+
+    try {
+      await BookingService.cancelBooking(bookingId, loggedInUser.id);
+      toast.success("Booking cancelled successfully.");
+      fetchBookings(loggedInUser.id);
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || "Unable to cancel booking."
+      );
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="my-bookings-page">
+        <h1>My Bookings</h1>
+        <div className="empty-bookings">
+          <p>Loading your bookings…</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="my-bookings-page">
@@ -45,8 +76,9 @@ function MyBookings() {
         <div className="booking-list">
           {bookings.map((booking) => (
             <BookingCard
-              key={booking.pnr}
+              key={booking.id}
               booking={booking}
+              onCancel={handleCancel}
             />
           ))}
         </div>

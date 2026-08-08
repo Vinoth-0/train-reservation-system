@@ -16,6 +16,7 @@ import com.vinoth.trainreservationsystem.entity.TrainEntity;
 import com.vinoth.trainreservationsystem.entity.UserEntity;
 import com.vinoth.trainreservationsystem.mapper.BookingMapper;
 import com.vinoth.trainreservationsystem.repository.BookingRepository;
+import com.vinoth.trainreservationsystem.repository.PassengerRepository;
 import com.vinoth.trainreservationsystem.repository.TrainRepository;
 import com.vinoth.trainreservationsystem.repository.UserRepository;
 import com.vinoth.trainreservationsystem.service.BookingService;
@@ -24,19 +25,22 @@ import com.vinoth.trainreservationsystem.service.BookingService;
 public class BookingServiceImpl implements BookingService {
 
     private final BookingRepository bookingRepository;
-    private final UserRepository userRepository;
+    private final PassengerRepository passengerRepository;
     private final TrainRepository trainRepository;
+    private final UserRepository userRepository;
     private final BookingMapper bookingMapper;
 
     public BookingServiceImpl(
             BookingRepository bookingRepository,
-            UserRepository userRepository,
+            PassengerRepository passengerRepository,
             TrainRepository trainRepository,
+            UserRepository userRepository,
             BookingMapper bookingMapper) {
 
         this.bookingRepository = bookingRepository;
-        this.userRepository = userRepository;
+        this.passengerRepository = passengerRepository;
         this.trainRepository = trainRepository;
+        this.userRepository = userRepository;
         this.bookingMapper = bookingMapper;
     }
 
@@ -45,33 +49,37 @@ public class BookingServiceImpl implements BookingService {
             int userId,
             BookingRequest request) {
 
-        // Find user
+        // Find User
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() ->
                         new RuntimeException("User not found"));
 
-        // Find train
-        TrainEntity train = trainRepository.findById(request.getTrainId())
+        // Find Train
+        TrainEntity train = trainRepository
+                .findById(request.getTrainId())
                 .orElseThrow(() ->
                         new RuntimeException("Train not found"));
 
-        // Check available seats
+        // Check seats
         if (train.getAvailableSeats() <= 0) {
             throw new RuntimeException("No seats available");
         }
 
-        // Create passenger
+        // Create Passenger
         Passenger passenger =
                 bookingMapper.passengerRequestToEntity(
-                        request.getPassenger()
-                );
+                        request.getPassenger());
 
-        // Create booking
+        // Save Passenger first
+        Passenger savedPassenger =
+                passengerRepository.save(passenger);
+
+        // Create Booking
         Booking booking = new Booking();
 
         booking.setUser(user);
         booking.setTrain(train);
-        booking.setPassenger(passenger);
+        booking.setPassenger(savedPassenger);
 
         // Generate PNR
         booking.setPnrNumber(generatePnr());
@@ -82,16 +90,15 @@ public class BookingServiceImpl implements BookingService {
         // Travel date
         booking.setTravelDate(request.getTravelDate());
 
-        // Status
+        // Booking status
         booking.setBookingStatus("CONFIRMED");
 
-        // Fare
+        // Ticket fare
         booking.setTotalFare(train.getPrice());
 
         // Reduce available seats
         train.setAvailableSeats(
-                train.getAvailableSeats() - 1
-        );
+                train.getAvailableSeats() - 1);
 
         trainRepository.save(train);
 
@@ -116,7 +123,8 @@ public class BookingServiceImpl implements BookingService {
     public BookingResponse findBookingByPnr(String pnrNumber) {
 
         Booking booking =
-                bookingRepository.findByPnrNumber(pnrNumber)
+                bookingRepository
+                        .findByPnrNumber(pnrNumber)
                         .orElseThrow(() ->
                                 new RuntimeException(
                                         "Booking not found"));
@@ -144,33 +152,31 @@ public class BookingServiceImpl implements BookingService {
                 .orElseThrow(() ->
                         new RuntimeException("Booking not found"));
 
-        // Make sure the booking belongs to this user
+        // Check ownership
         if (booking.getUser().getId() != userId) {
             throw new RuntimeException(
-                    "You are not allowed to cancel this booking"
-            );
+                    "You are not allowed to cancel this booking");
         }
 
-        // Check if already cancelled
+        // Already cancelled?
         if ("CANCELLED".equalsIgnoreCase(
                 booking.getBookingStatus())) {
 
             throw new RuntimeException(
-                    "Booking is already cancelled"
-            );
+                    "Booking is already cancelled");
         }
 
-        // Change booking status
+        // Cancel booking
         booking.setBookingStatus("CANCELLED");
 
-        // Increase available seats
+        // Return seat
         TrainEntity train = booking.getTrain();
 
         train.setAvailableSeats(
-                train.getAvailableSeats() + 1
-        );
+                train.getAvailableSeats() + 1);
 
         trainRepository.save(train);
+
         bookingRepository.save(booking);
 
         return "Booking cancelled successfully";
@@ -178,18 +184,15 @@ public class BookingServiceImpl implements BookingService {
 
     private String generatePnr() {
 
-        String date =
-                LocalDate.now()
-                        .format(
-                                DateTimeFormatter.ofPattern("yyyyMMdd")
-                        );
+        String date = LocalDate.now()
+                .format(
+                        DateTimeFormatter.ofPattern("yyyyMMdd"));
 
-        String random =
-                UUID.randomUUID()
-                        .toString()
-                        .replace("-", "")
-                        .substring(0, 6)
-                        .toUpperCase();
+        String random = UUID.randomUUID()
+                .toString()
+                .replace("-", "")
+                .substring(0, 6)
+                .toUpperCase();
 
         return "ATR" + date + random;
     }

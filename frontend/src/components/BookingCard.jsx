@@ -1,97 +1,225 @@
-import { Link } from "react-router-dom";
 import {
   FaTrain,
+  FaTicketAlt,
   FaUser,
   FaCalendarAlt,
-  FaTicketAlt,
-  FaCheckCircle,
-  FaDownload,
-  FaTimesCircle,
-  FaArrowRight,
+  FaMapMarkerAlt,
+  FaRupeeSign,
 } from "react-icons/fa";
+
 import "./BookingCard.css";
 
-const STATUS_ICON = {
-  Confirmed: <FaCheckCircle />,
-  Cancelled: <FaTimesCircle />,
-  Pending: <FaCalendarAlt />,
-};
+function BookingCard({ booking, onCancel }) {
 
-function BookingCard({ booking }) {
-  const statusKey = booking.status || "Pending";
-  const statusClass = statusKey.toLowerCase();
+  const isCancelled =
+    booking.bookingStatus?.toUpperCase() === "CANCELLED";
 
   return (
-    <div className={`booking-card status-${statusClass}`}>
+    <div className="booking-card">
+
       {/* Header */}
-      <div className="booking-header">
-        <div className="booking-header-left">
-          <h2>{booking.trainName}</h2>
-          <span className="booking-train-badge">#{booking.trainNumber}</span>
-        </div>
+      <div className="booking-card-header">
 
-        <span className={`booking-status ${statusClass}`}>
-          {STATUS_ICON[statusKey]}
-          {statusKey}
-        </span>
-      </div>
+        <div className="booking-train">
 
-      {/* Route strip */}
-      <div className="booking-route">
-        <div className="booking-stop departure">
-          <span className="booking-stop-label">From</span>
-          <span className="booking-city">{booking.source}</span>
-        </div>
-
-        <div className="booking-route-mid">
-          <div className="route-line-track">
-            <div className="track-dot" />
-            <div className="track-line" />
-            <FaArrowRight className="track-arrow" />
+          <div className="booking-train-icon">
+            <FaTrain />
           </div>
+
+          <div>
+            <h2>{booking.trainName}</h2>
+
+            <span>
+              Train No: #{booking.trainNumber}
+            </span>
+          </div>
+
         </div>
 
-        <div className="booking-stop arrival">
-          <span className="booking-stop-label">To</span>
-          <span className="booking-city">{booking.destination}</span>
-        </div>
-      </div>
-
-      {/* Info pills */}
-      <div className="booking-pills">
-        <span className="booking-pill pnr">
-          <FaTicketAlt /> PNR: {booking.pnr}
-        </span>
-        <span className="booking-pill">
-          <FaUser /> {booking.passengerName}
-        </span>
-        <span className="booking-pill">
-          <FaCalendarAlt /> {booking.travelDate}
-        </span>
-        <span className="booking-pill">
-          <FaTrain /> {booking.seatClass || "Sleeper"}
-        </span>
-      </div>
-
-      {/* Actions */}
-      <div className="booking-actions">
-        <button className="action-btn btn-download">
-          <FaDownload /> Download Ticket
-        </button>
-
-        {statusClass !== "cancelled" && (
-          <button className="action-btn btn-cancel">
-            <FaTimesCircle /> Cancel
-          </button>
-        )}
-
-        <Link
-          to={`/train/${booking.trainNumber}`}
-          className="action-btn btn-view"
+        <span
+          className={`booking-status ${
+            isCancelled ? "cancelled" : "confirmed"
+          }`}
         >
-          View Train
-        </Link>
+          {booking.bookingStatus}
+        </span>
+
       </div>
+
+
+      {/* PNR */}
+      <div className="booking-pnr">
+
+        <div>
+          <span>PNR NUMBER</span>
+          <strong>{booking.pnrNumber}</strong>
+        </div>
+
+        <FaTicketAlt />
+
+      </div>
+
+
+      {/* Route */}
+      <div className="booking-route">
+
+        <div className="booking-station">
+
+          <span>FROM</span>
+
+          <strong>
+            <FaMapMarkerAlt />
+            {booking.source}
+          </strong>
+
+        </div>
+
+
+        <div className="route-line">
+          <FaTrain />
+          <div></div>
+        </div>
+
+
+        <div className="booking-station destination">
+
+          <span>TO</span>
+
+          <strong>
+            {booking.destination}
+            <FaMapMarkerAlt />
+          </strong>
+
+        </div>
+
+      </div>
+
+
+      {/* Booking Details */}
+      <div className="booking-details">
+
+        <div className="booking-detail">
+
+          <FaCalendarAlt />
+
+          <div>
+            <span>Travel Date</span>
+            <strong>{booking.travelDate}</strong>
+          </div>
+
+        </div>
+
+
+        <div className="booking-detail">
+
+          <FaCalendarAlt />
+
+          <div>
+            <span>Booked On</span>
+            <strong>{booking.bookingDate}</strong>
+          </div>
+
+        </div>
+
+
+        <div className="booking-detail">
+
+          <FaUser />
+
+          <div>
+            <span>Passenger</span>
+            <strong>
+              {booking.passenger?.name}
+            </strong>
+          </div>
+
+        </div>
+
+
+        <div className="booking-detail">
+
+          <FaRupeeSign />
+
+          <div>
+            <span>Total Fare</span>
+
+            <strong>
+              ₹ {Number(booking.totalFare).toLocaleString()}
+            </strong>
+          </div>
+
+        </div>
+
+      </div>
+
+
+      {/* Passenger Information */}
+      <div className="booking-passenger">
+
+        <div className="passenger-title">
+          <FaUser />
+          <span>Passenger Details</span>
+        </div>
+
+        <div className="passenger-info">
+
+          <span>
+            {booking.passenger?.age} years
+          </span>
+
+          <span>
+            {booking.passenger?.gender}
+          </span>
+
+          <span>
+            {booking.passenger?.berthPreference}
+          </span>
+
+        </div>
+
+      </div>
+
+
+      {/* Cancel action */}
+      {!isCancelled && onCancel && (
+        <div className="booking-actions">
+          <button
+            type="button"
+            className="cancel-booking-btn"
+            onClick={() => onCancel(booking.id)}
+          >
+            Cancel Booking
+          </button>
+        </div>
+      )}
+
+      {/* Footer */}
+      <div className="booking-card-footer">
+
+        <div className="booking-contact">
+
+          <span>
+            {booking.passenger?.mobile}
+          </span>
+
+          <span>
+            {booking.passenger?.email}
+          </span>
+
+        </div>
+
+        <div className="booking-fare">
+
+          <span>Total Fare</span>
+
+          <strong>
+            ₹ {Number(booking.totalFare).toLocaleString()}
+          </strong>
+
+        </div>
+
+      </div>
+
     </div>
   );
 }
