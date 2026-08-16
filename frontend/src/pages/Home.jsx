@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import {
   FaTrain,
   FaClock,
@@ -7,6 +8,7 @@ import {
   FaMapMarkedAlt,
   FaArrowRight,
 } from "react-icons/fa";
+import TrainService from "../services/TrainService";
 import "./Home.css";
 
 const FEATURES = [
@@ -32,18 +34,59 @@ const FEATURES = [
   },
 ];
 
-const ROUTES = [
-  { from: "Chennai", to: "Bengaluru", duration: "6 hrs · Daily" },
-  { from: "Delhi", to: "Mumbai", duration: "16 hrs · Daily" },
-  { from: "Hyderabad", to: "Chennai", duration: "13 hrs · Daily" },
-  { from: "Kolkata", to: "Delhi", duration: "17 hrs · Daily" },
-  { from: "Mumbai", to: "Chennai", duration: "14 hrs · Daily" },
-  { from: "Bengaluru", to: "Hyderabad", duration: "10 hrs · Daily" },
-  { from: "Chennai", to: "Kolkata", duration: "24 hrs · Daily" },
-  { from: "Delhi", to: "Bengaluru", duration: "20 hrs · Daily" },
-];
-
 function Home() {
+  const navigate = useNavigate();
+
+  const [search, setSearch] = useState({ source: "", destination: "" });
+  const [popularRoutes, setPopularRoutes] = useState([]);
+  const [loadingRoutes, setLoadingRoutes] = useState(true);
+
+  useEffect(() => {
+    fetchPopularRoutes();
+  }, []);
+
+  const fetchPopularRoutes = async () => {
+    setLoadingRoutes(true);
+    try {
+      const response = await TrainService.getAllTrains();
+      const trains = response.data;
+
+      // Group trains by source→destination pair, count how many
+      // trains run each route, and surface the most common ones.
+      const counts = {};
+      trains.forEach((t) => {
+        const key = `${t.source}|${t.destination}`;
+        counts[key] = (counts[key] || 0) + 1;
+      });
+
+      const routes = Object.entries(counts)
+        .map(([key, count]) => {
+          const [from, to] = key.split("|");
+          return { from, to, count };
+        })
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 8);
+
+      setPopularRoutes(routes);
+    } catch (error) {
+      setPopularRoutes([]);
+    } finally {
+      setLoadingRoutes(false);
+    }
+  };
+
+  const handleChange = (e) => {
+    setSearch({ ...search, [e.target.name]: e.target.value });
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    const params = new URLSearchParams();
+    if (search.source) params.set("source", search.source);
+    if (search.destination) params.set("destination", search.destination);
+    navigate(`/search?${params.toString()}`);
+  };
+
   return (
     <div className="home">
       {/* ── Hero ── */}
@@ -65,9 +108,6 @@ function Home() {
           <div className="hero-actions">
             <Link to="/search" className="btn-primary">
               Search Trains <FaArrowRight style={{ fontSize: 13 }} />
-            </Link>
-            <Link to="/register" className="btn-ghost">
-              Create Account
             </Link>
           </div>
         </div>
@@ -104,35 +144,33 @@ function Home() {
           </div>
 
           <div className="search-body">
-            <div className="search-grid">
+            <form className="search-grid" onSubmit={handleSearch}>
               <div className="field-group">
                 <label>From</label>
-                <input type="text" placeholder="e.g. Chennai Central" />
+                <input
+                  type="text"
+                  name="source"
+                  placeholder="e.g. Chennai"
+                  value={search.source}
+                  onChange={handleChange}
+                />
               </div>
 
               <div className="field-group">
                 <label>To</label>
-                <input type="text" placeholder="e.g. New Delhi" />
+                <input
+                  type="text"
+                  name="destination"
+                  placeholder="e.g. New Delhi"
+                  value={search.destination}
+                  onChange={handleChange}
+                />
               </div>
 
-              <div className="field-group">
-                <label>Date</label>
-                <input type="date" />
-              </div>
-
-              <div className="field-group">
-                <label>Class</label>
-                <select>
-                  <option>All Classes</option>
-                  <option>Sleeper (SL)</option>
-                  <option>AC 3-Tier (3A)</option>
-                  <option>AC 2-Tier (2A)</option>
-                  <option>AC First (1A)</option>
-                </select>
-              </div>
-
-              <button className="search-btn">Search →</button>
-            </div>
+              <button type="submit" className="search-btn">
+                Search →
+              </button>
+            </form>
           </div>
         </div>
       </section>
@@ -158,21 +196,33 @@ function Home() {
         <span className="section-label">Popular Routes</span>
         <h2 className="section-title">Where will you go next?</h2>
 
-        <div className="route-grid">
-          {ROUTES.map((r) => (
-            <Link to="/search" className="route-card" key={r.from + r.to}>
-              <div className="route-icon">
-                <FaMapMarkedAlt />
-              </div>
-              <div className="route-text">
-                <h3>
-                  {r.from} → {r.to}
-                </h3>
-                <span>{r.duration}</span>
-              </div>
-            </Link>
-          ))}
-        </div>
+        {loadingRoutes ? (
+          <p className="routes-status">Loading routes…</p>
+        ) : popularRoutes.length > 0 ? (
+          <div className="route-grid">
+            {popularRoutes.map((r) => (
+              <Link
+                to={`/search?source=${encodeURIComponent(r.from)}&destination=${encodeURIComponent(r.to)}`}
+                className="route-card"
+                key={r.from + r.to}
+              >
+                <div className="route-icon">
+                  <FaMapMarkedAlt />
+                </div>
+                <div className="route-text">
+                  <h3>
+                    {r.from} → {r.to}
+                  </h3>
+                  <span>{r.count} train{r.count > 1 ? "s" : ""} available</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <p className="routes-status">
+            No routes yet — check back once trains are added.
+          </p>
+        )}
       </section>
 
       {/* ── Offer ── */}
@@ -180,11 +230,9 @@ function Home() {
         <span className="offer-eyebrow">Limited Time</span>
         <h2>20% off your first booking</h2>
         <p>
-          Create an account today and save instantly on any route across India.
+          Use code <strong>FIRST20</strong> at checkout to get 20% off your first train ticket booking.
+          <br />Hurry, offer valid until the end of the month!
         </p>
-        <Link to="/register" className="btn-primary">
-          Claim Offer <FaArrowRight style={{ fontSize: 13 }} />
-        </Link>
       </section>
     </div>
   );

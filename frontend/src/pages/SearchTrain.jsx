@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { FaTrain, FaSearch } from "react-icons/fa";
 import { toast } from "react-toastify";
 import TrainCard from "../components/TrainCard";
@@ -6,9 +7,11 @@ import TrainService from "../services/TrainService";
 import "./SearchTrain.css";
 
 function SearchTrain() {
+  const [searchParams] = useSearchParams();
+
   const [search, setSearch] = useState({
-    source: "",
-    destination: "",
+    source: searchParams.get("source") || "",
+    destination: searchParams.get("destination") || "",
   });
 
   const [trains, setTrains] = useState([]);
@@ -16,8 +19,16 @@ function SearchTrain() {
   const [searched, setSearched] = useState(false);
 
   useEffect(() => {
-    fetchAllTrains();
-  }, []);
+    const source = searchParams.get("source") || "";
+    const destination = searchParams.get("destination") || "";
+
+    if (source || destination) {
+      runSearch({ source, destination });
+    } else {
+      fetchAllTrains();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   const fetchAllTrains = async () => {
     setLoading(true);
@@ -31,22 +42,26 @@ function SearchTrain() {
     }
   };
 
-  const handleChange = (e) => {
-    setSearch({ ...search, [e.target.name]: e.target.value });
-  };
-
-  const handleSearch = async (e) => {
-    e.preventDefault();
+  const runSearch = async (params) => {
     setLoading(true);
     setSearched(true);
     try {
-      const response = await TrainService.searchTrains(search);
+      const response = await TrainService.searchTrains(params);
       setTrains(response.data);
     } catch (error) {
       toast.error("Search failed. Please try again.");
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleChange = (e) => {
+    setSearch({ ...search, [e.target.name]: e.target.value });
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    runSearch(search);
   };
 
   const handleReset = () => {
